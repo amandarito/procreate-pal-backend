@@ -1,7 +1,4 @@
 ###
-GET http://localhost:3001/api/colors
-
-###
 POST http://localhost:3001/api/preview HTTP/1.1
 Content-Type: application/json
 
@@ -9,11 +6,20 @@ Content-Type: application/json
     "link": "https://lospec.com/palette-list/bubblegum-16"
 }
 
-###
+### test invalid link
 POST http://localhost:3001/api/convert HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "test palette",
-    "link": "https://lospec.com/palette-list/bubblegum-16"
+    "source": "coolors",
+    "url": "https://coolors.org/"
+}
+
+### test converting lospec to palette
+POST http://localhost:3001/api/convert HTTP/1.1
+Content-Type: application/json
+
+{
+    "source": "lospec",
+    "url": "https://lospec.com/palette-list/bubblegum-16"
 }

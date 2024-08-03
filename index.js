@@ -1,23 +1,31 @@
-// for now, this runs on localhost:3001.
-const express = require('express')
+// for now, this runs on localhost:3001
+import express from 'express'
+import cors from 'cors'
+
 const app = express()
-
 app.use(express.json())
+app.use(cors())
 
-let colors = ['#FF9CC9', '#F97373', '#FFAA00', '#EEEE33', '#99CC44', '#32C29C']
+import * as converter from './converter.js'
 
-app.get('/api/colors', (request, response) => {
-  response.json(colors)
-})
-
+// [ ] make this return an array of hex codes (strings)
 app.post('/api/preview', (request, response) => {
   response.send('preview')
 })
 
-app.post('/api/convert', (request, response) => {
-  const note = request.body
-  console.log(note)
-  response.json(note)
+// [ ] do validation here so I can throw errors
+app.post('/api/convert', async (request, response) => {
+  try {
+    const data = request.body
+    const isValid = converter.validateUrl(data.url)
+    console.log(isValid)
+    const handler = converter.getHandler(data.url)
+    console.log(handler)
+    const palette = await converter.convert(data.source, data.url)
+    response.json(palette)
+  } catch (error) {
+    response.status(400).json({ status: 'error', message: error.message })
+  }
 })
 
 const PORT = 3001
