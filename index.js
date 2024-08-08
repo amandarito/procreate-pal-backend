@@ -8,12 +8,22 @@ app.use(cors())
 
 import * as converter from './converter.js'
 
-// [ ] make this return an array of hex codes (strings)
-app.post('/api/preview', (request, response) => {
-  response.send('preview')
+// [ ] make better errors so it's not always 400
+app.post('/api/preview', async (request, response) => {
+  try {
+    const data = request.body
+    const isValid = converter.validateUrl(data.url)
+    console.log(isValid)
+    const handler = converter.getHandler(data.url)
+    console.log(handler)
+    const colors = await handler(data.url)
+    console.log(colors)
+    response.json({ colors: colors })
+  } catch (error) {
+    response.status(400).json({ status: 'error', message: error.message })
+  }
 })
 
-// [ ] do validation here so I can throw errors
 app.post('/api/convert', async (request, response) => {
   try {
     const data = request.body
@@ -21,8 +31,10 @@ app.post('/api/convert', async (request, response) => {
     console.log(isValid)
     const handler = converter.getHandler(data.url)
     console.log(handler)
-    const palette = await converter.convert(data.source, data.url)
-    response.json(palette)
+    const colors = await handler(data.url)
+    console.log(colors)
+    const palette = await converter.hexToProcreate(colors)
+    response.json({ palette: palette })
   } catch (error) {
     response.status(400).json({ status: 'error', message: error.message })
   }
